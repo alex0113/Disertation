@@ -275,6 +275,41 @@ class KnowledgeGraph:
             "result": result.name,
             "reasoning": reasoning
         })
+    
+    def populate_from_facts(self, facts: List[Fact]):
+        """
+        Populate the knowledge graph from a list of extracted facts.
+        
+        Args:
+            facts: List of Fact objects to add to the graph
+        """
+        for fact in facts:
+            # Add entities first
+            self.add_entity(fact.subject, "Entity")
+            self.add_entity(fact.object, "Entity")
+            
+            # Add the fact with its confidence and sources
+            primary_source = fact.sources[0] if fact.sources else Source(
+                name="Unknown", 
+                credibility=CredibilityScore.NEUTRAL
+            )
+            self.add_fact(
+                fact.subject,
+                fact.predicate,
+                fact.object,
+                primary_source,
+                fact.confidence
+            )
+            
+            # Add additional sources if available
+            for source in fact.sources[1:]:
+                self.add_fact(
+                    fact.subject,
+                    fact.predicate,
+                    fact.object,
+                    source,
+                    fact.confidence
+                )
 
 
 def demonstrate_knowledge_graph():
